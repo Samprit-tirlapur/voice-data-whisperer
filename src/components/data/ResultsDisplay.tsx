@@ -9,11 +9,13 @@ import { ChartBar, Table as TableIcon } from 'lucide-react';
 interface ResultsDisplayProps {
   results: any[];
   sql: string;
+  title?: string;
+  description?: string;
 }
 
 const CHART_COLORS = ['#9b87f5', '#6E59A5', '#33C3F0', '#F97316', '#D946EF'];
 
-const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, sql }) => {
+const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, sql, title, description }) => {
   const [activeTab, setActiveTab] = useState('table');
   
   if (!results || results.length === 0) {
@@ -67,12 +69,18 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, sql }) => {
     }));
   }
   
+  // Generate dynamic title if not provided
+  const chartTitle = title || (hasCategories 
+    ? `${numericalColumns[0]?.replace('_', ' ') || 'Value'} by ${headers.find(h => ['category', 'country', 'status', 'product'].includes(h)) || 'Category'}` 
+    : `${numericalColumns[0]?.replace('_', ' ') || 'Data'} Distribution`
+  );
+  
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Query Results</CardTitle>
+        <CardTitle>{title || 'Query Results'}</CardTitle>
         <CardDescription className="font-mono text-sm bg-muted p-2 rounded-md overflow-x-auto">
-          {sql}
+          {description || sql}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -117,6 +125,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, sql }) => {
           
           {hasNumericalData && (
             <TabsContent value="chart" className="w-full">
+              <h3 className="text-lg font-medium mb-2">{chartTitle}</h3>
               <div className="h-[400px] w-full">
                 {hasCategories ? (
                   <ResponsiveContainer width="100%" height="100%">
