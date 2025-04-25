@@ -161,7 +161,7 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, sql }) => {
               </div>
             </TabsContent>
           )}
-        </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
