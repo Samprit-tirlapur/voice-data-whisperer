@@ -130,6 +130,21 @@ const Index = () => {
                     <li>Show me customers from the USA</li>
                     <li>How many orders do we have?</li>
                   </ul>
+                  
+                  {datasets.length >= 2 && (
+                    <>
+                      <h3 className="text-lg font-semibold mt-4 mb-2">Join Operations</h3>
+                      <p className="mb-3">You can also join datasets with these queries:</p>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>Join {datasets[0].name} and {datasets[1].name}</li>
+                        <li>Show me inner join between {datasets[0].name} and {datasets[1].name}</li>
+                        <li>Left join {datasets[0].name} with {datasets[1].name}</li>
+                      </ul>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Note: Joins will automatically find common fields between datasets
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             )}
