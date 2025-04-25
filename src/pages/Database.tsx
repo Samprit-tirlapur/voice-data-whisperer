@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useData } from '@/context/DataContext';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import CSVImport from '@/components/data/CSVImport';
 import DataEntryForm from '@/components/data/DataEntryForm';
-import { Database, Plus, Upload, Trash2 } from 'lucide-react';
+import { Database as DatabaseIcon, Plus, Upload, Trash2 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 
 const Database = () => {
@@ -36,7 +35,7 @@ const Database = () => {
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Database className="h-6 w-6" />
+          <DatabaseIcon className="h-6 w-6" />
           Database Management
         </h1>
       </div>
