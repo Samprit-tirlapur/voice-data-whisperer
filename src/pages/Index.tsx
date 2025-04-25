@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useTheme } from 'next-themes';
 import Header from '@/components/layout/Header';
 import VoiceRecorder from '@/components/voice/VoiceRecorder';
@@ -12,7 +11,8 @@ import { useAuth } from '@/context/AuthContext';
 import { useData } from '@/context/DataContext';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Database, Upload } from 'lucide-react';
+import { Database, Upload, Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Index = () => {
   const [query, setQuery] = useState('');
@@ -30,9 +30,8 @@ const Index = () => {
   
   const handleTranscription = (text: string) => {
     setQuery(text);
-    // Add to history if not already present
     if (!history.includes(text)) {
-      setHistory(prev => [text, ...prev].slice(0, 10)); // Keep only 10 most recent
+      setHistory(prev => [text, ...prev].slice(0, 10));
     }
   };
   
@@ -53,47 +52,45 @@ const Index = () => {
       
       <main className="flex-1 container mx-auto p-4 md:p-6">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-          <div className="md:col-span-4">
-            <div className="space-y-6">
-              <VoiceRecorder onTranscription={handleTranscription} />
-              
-              {datasets.length === 0 && (
-                <Card className="bg-card">
-                  <CardContent className="p-6 space-y-4">
-                    <h2 className="text-xl font-semibold">No Datasets Found</h2>
-                    <p>You need to import or create a dataset before you can start querying data.</p>
-                    <Link to="/database">
-                      <Button className="w-full flex items-center gap-2">
-                        <Database className="h-4 w-4" />
-                        Go to Database Management
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              )}
-              
-              {datasets.length > 0 && !activeDataset && (
-                <Card className="bg-card">
-                  <CardContent className="p-6 space-y-4">
-                    <h2 className="text-xl font-semibold">Select a Dataset</h2>
-                    <p>Please select a dataset to start querying.</p>
-                    <Link to="/database">
-                      <Button className="w-full flex items-center gap-2">
-                        <Database className="h-4 w-4" />
-                        Go to Database Management
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              )}
-              
-              {history.length > 0 && (
-                <QueryHistory 
-                  history={history} 
-                  onSelectQuery={handleSelectFromHistory} 
-                />
-              )}
-            </div>
+          <div className="md:col-span-4 space-y-6">
+            <VoiceRecorder onTranscription={handleTranscription} />
+            
+            {datasets.length === 0 && (
+              <Card className="bg-card border-2 border-dashed">
+                <CardContent className="p-6 space-y-4">
+                  <h2 className="text-xl font-semibold">No Datasets Found</h2>
+                  <p className="text-muted-foreground">Import or create a dataset to start querying data.</p>
+                  <Link to="/database">
+                    <Button className="w-full flex items-center gap-2">
+                      <Database className="h-4 w-4" />
+                      Go to Database Management
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+            
+            {datasets.length > 0 && !activeDataset && (
+              <Card className="bg-card border-2 border-dashed">
+                <CardContent className="p-6 space-y-4">
+                  <h2 className="text-xl font-semibold">Select a Dataset</h2>
+                  <p className="text-muted-foreground">Choose a dataset to start querying.</p>
+                  <Link to="/database">
+                    <Button className="w-full flex items-center gap-2">
+                      <Database className="h-4 w-4" />
+                      Select Dataset
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+            
+            {history.length > 0 && (
+              <QueryHistory 
+                history={history} 
+                onSelectQuery={handleSelectFromHistory} 
+              />
+            )}
           </div>
           
           <div className="md:col-span-8 space-y-6">
@@ -118,43 +115,60 @@ const Index = () => {
                 </CardContent>
               </Card>
             ) : (
-              <Card className="bg-card">
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold mb-4">Getting Started</h2>
-                  <p className="mb-3">Currently querying dataset: <strong>{activeDataset}</strong></p>
-                  <p className="mb-3">Here are some example queries you can try:</p>
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Show me the top 5 customers by revenue</li>
-                    <li>List all orders with completed status</li>
-                    <li>What products do we have in the Electronics category?</li>
-                    <li>Show me customers from the USA</li>
-                    <li>How many orders do we have?</li>
-                  </ul>
-                  
-                  {datasets.length >= 2 && (
-                    <>
-                      <h3 className="text-lg font-semibold mt-4 mb-2">Join Operations</h3>
-                      <p className="mb-3">You can also join datasets with these queries:</p>
-                      <ul className="list-disc pl-5 space-y-2">
-                        <li>Join {datasets[0].name} and {datasets[1].name}</li>
-                        <li>Show me inner join between {datasets[0].name} and {datasets[1].name}</li>
-                        <li>Left join {datasets[0].name} with {datasets[1].name}</li>
-                      </ul>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        Note: Joins will automatically find common fields between datasets
-                      </p>
-                    </>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-            
-            {activeDataset && query && (
-              <QueryProcessor query={query} onResults={handleResults} />
-            )}
-            
-            {activeDataset && results.length > 0 && (
-              <ResultsDisplay results={results} sql={sql} title={title} />
+              <>
+                <Card className="bg-card">
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <h2 className="text-xl font-semibold">Active Dataset: <span className="text-primary">{activeDataset}</span></h2>
+                        <p className="text-muted-foreground mt-1">Try these example queries:</p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <Alert>
+                        <AlertDescription>
+                          "Show me the top 5 customers by revenue"
+                        </AlertDescription>
+                      </Alert>
+                      <Alert>
+                        <AlertDescription>
+                          "List all orders with completed status"
+                        </AlertDescription>
+                      </Alert>
+                    </div>
+                    
+                    {datasets.length >= 2 && (
+                      <div className="mt-6">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Info className="h-4 w-4 text-muted-foreground" />
+                          <h3 className="font-semibold">Join Operations Available</h3>
+                        </div>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <Alert>
+                            <AlertDescription>
+                              "Join {datasets[0].name} and {datasets[1].name}"
+                            </AlertDescription>
+                          </Alert>
+                          <Alert>
+                            <AlertDescription>
+                              "Left join {datasets[0].name} with {datasets[1].name}"
+                            </AlertDescription>
+                          </Alert>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                {activeDataset && query && (
+                  <QueryProcessor query={query} onResults={handleResults} />
+                )}
+                
+                {activeDataset && results.length > 0 && (
+                  <ResultsDisplay results={results} sql={sql} title={title} />
+                )}
+              </>
             )}
           </div>
         </div>
